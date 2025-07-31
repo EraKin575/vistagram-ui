@@ -1,9 +1,12 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
-import Home from './pages/Home';
-import Login from './pages/Login';
-import Signup from './pages/Signup';
+// import Home from './pages/Home';
+// import Login from './pages/Login';
+// import Signup from './pages/Signup';
 import { Loader } from 'lucide-react';
+import Home from './components/pages/Home';
+import Login from './components/pages/Login';
+import Signup from './components/pages/Signup';
 
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, loading } = useAuth();

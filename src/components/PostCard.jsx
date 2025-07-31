@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Heart, MessageCircle, Share, MoreHorizontal, Edit, Trash2 } from 'lucide-react';
-import { postsAPI } from '../utils/api';
+import { postsAPI } from './utils/api';
 
 const PostCard = ({ post, onUpdate, onDelete, isOwner = false }) => {
   const [likes, setLikes] = useState(post.likes || 0);

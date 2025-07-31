@@ -1,8 +1,9 @@
 import { useState, useRef } from 'react';
 import { X, Upload, Sparkles, Loader } from 'lucide-react';
-import { uploadImage } from '../utils/cloudinary';
-import { generateCaption } from '../utils/gemini';
-import { postsAPI } from '../utils/api';
+
+import { uploadImage } from './utils/cloudinary';
+import { generateCaption } from './utils/gemini';
+import { postsAPI } from './utils/api';
 
 const CreatePostModal = ({ isOpen, onClose, onPostCreated }) => {
   const [title, setTitle] = useState('');

@@ -1,6 +1,9 @@
 import { useState, useEffect } from 'react';
 import { Filter, Loader, Plus } from 'lucide-react';
 import Navbar from '../Navbar';
+import CreatePostModal from '../CreatePostModal';
+import { postsAPI } from '../utils/api';
+import PostCard from '../PostCard';
 
 const Home = () => {
   const [posts, setPosts] = useState([]);
