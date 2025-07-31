@@ -14,15 +14,16 @@ const Home = () => {
 
   const filters = [
     { value: 'recent', label: 'Recent' },
-    { value: 'likes', label: 'Most Liked' },
-    { value: 'popular', label: 'Popular' },
+    { value: 'likes',  label: 'Most Liked' },
+    { value: 'popular',label: 'Popular' },
   ];
 
   const fetchPosts = async (selectedFilter = filter) => {
     try {
       setRefreshing(true);
       const response = await postsAPI.getPosts(selectedFilter);
-      setPosts(response.data);
+      // ensure we always have an array
+      setPosts(response.data ?? []);
     } catch (error) {
       console.error('Error fetching posts:', error);
     } finally {
@@ -46,7 +47,6 @@ const Home = () => {
   };
 
   const handlePostUpdate = (post) => {
-    // Navigate to edit post or open edit modal
     console.log('Edit post:', post);
   };
 
@@ -57,29 +57,29 @@ const Home = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       <Navbar />
-      
+
       <div className="max-w-4xl mx-auto px-4 py-8">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center space-x-4">
             <Filter className="w-5 h-5 text-gray-600" />
             <div className="flex space-x-2">
-              {filters.map((filterOption) => (
+              {filters.map(f => (
                 <button
-                  key={filterOption.value}
-                  onClick={() => handleFilterChange(filterOption.value)}
+                  key={f.value}
+                  onClick={() => handleFilterChange(f.value)}
                   className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                    filter === filterOption.value
+                    filter === f.value
                       ? 'bg-blue-600 text-white'
                       : 'bg-white text-gray-600 hover:bg-gray-100'
                   }`}
                 >
-                  {filterOption.label}
+                  {f.label}
                 </button>
               ))}
             </div>
           </div>
-          
+
           <button
             onClick={() => setShowCreateModal(true)}
             className="btn-primary flex items-center space-x-2"
@@ -112,20 +112,19 @@ const Home = () => {
                 <Loader className="w-6 h-6 animate-spin text-blue-600 mx-auto" />
               </div>
             )}
-            {posts.map((post) => (
+            {posts.map(post => (
               <PostCard
                 key={post.id}
                 post={post}
                 onUpdate={handlePostUpdate}
                 onDelete={handlePostDelete}
-                isOwner={false} // You'll need to check if current user owns the post
+                isOwner={false}
               />
             ))}
           </div>
         )}
       </div>
 
-      {/* Create Post Modal */}
       <CreatePostModal
         isOpen={showCreateModal}
         onClose={() => setShowCreateModal(false)}
