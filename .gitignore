@@ -1,0 +1,50 @@
+# Dependency directory
+node_modules/
+
+# Build output
+dist/
+build/
+.next/
+out/
+
+# Runtime data
+*.log
+*.pid
+*.seed
+*.pid.lock
+
+# Environment files
+.env
+.env.*     # If you use .env.development, .env.production, etc.
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE/editor configs
+.vscode/
+.idea/
+*.sublime-workspace
+*.sublime-project
+
+# npm/yarn/pnpm logs & lockfiles (optional to ignore)
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Optional: Ignore lockfiles if not using them
+# package-lock.json
+# yarn.lock
+# pnpm-lock.yaml
+
+# Coverage reports
+coverage/
+.nyc_output/
+
+# Testing snapshots
+__snapshots__/
+
+# Lint/cache/temp
+.eslintcache
+.cache/
