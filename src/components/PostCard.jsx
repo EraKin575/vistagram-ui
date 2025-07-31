@@ -1,5 +1,12 @@
 import { useState } from 'react';
-import { Heart, MessageCircle, Share, MoreHorizontal, Edit, Trash2 } from 'lucide-react';
+import {
+  Heart,
+  Share,
+  MoreHorizontal,
+  Edit,
+  Trash2,
+  ThumbsDown,
+} from 'lucide-react';
 import { postsAPI } from './utils/api';
 
 const PostCard = ({ post, onUpdate, onDelete, isOwner = false }) => {
@@ -10,25 +17,26 @@ const PostCard = ({ post, onUpdate, onDelete, isOwner = false }) => {
   const [showMenu, setShowMenu] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  const fetchUpdatedPost = async () => {
+    try {
+      const updated = await postsAPI.getPostById(post.id);
+      setLikes(updated.likes || 0);
+      setDislikes(updated.dislikes || 0);
+    } catch (err) {
+      console.error('Failed to fetch updated post:', err);
+    }
+  };
+
   const handleLike = async () => {
     if (loading) return;
-    
     setLoading(true);
     try {
-      if (isLiked) {
-        setLikes(prev => prev - 1);
-        setIsLiked(false);
-      } else {
-        await postsAPI.likePost(post.id);
-        setLikes(prev => prev + 1);
-        setIsLiked(true);
-        if (isDisliked) {
-          setDislikes(prev => prev - 1);
-          setIsDisliked(false);
-        }
-      }
-    } catch (error) {
-      console.error('Error liking post:', error);
+      await postsAPI.likePost(post.id);
+      setIsLiked(true);
+      setIsDisliked(false);
+      await fetchUpdatedPost();
+    } catch (err) {
+      console.error('Error liking post:', err);
     } finally {
       setLoading(false);
     }
@@ -36,23 +44,14 @@ const PostCard = ({ post, onUpdate, onDelete, isOwner = false }) => {
 
   const handleDislike = async () => {
     if (loading) return;
-    
     setLoading(true);
     try {
-      if (isDisliked) {
-        setDislikes(prev => prev - 1);
-        setIsDisliked(false);
-      } else {
-        await postsAPI.dislikePost(post.id);
-        setDislikes(prev => prev + 1);
-        setIsDisliked(true);
-        if (isLiked) {
-          setLikes(prev => prev - 1);
-          setIsLiked(false);
-        }
-      }
-    } catch (error) {
-      console.error('Error disliking post:', error);
+      await postsAPI.dislikePost(post.id);
+      setIsLiked(false);
+      setIsDisliked(true);
+      await fetchUpdatedPost();
+    } catch (err) {
+      console.error('Error disliking post:', err);
     } finally {
       setLoading(false);
     }
@@ -62,14 +61,17 @@ const PostCard = ({ post, onUpdate, onDelete, isOwner = false }) => {
     try {
       await postsAPI.sharePost(post.id);
       if (navigator.share) {
-        navigator.share({
+        await navigator.share({
           title: post.title,
           text: post.content,
           url: window.location.href,
         });
+      } else {
+        await navigator.clipboard.writeText(window.location.href);
+        alert('Link copied to clipboard!');
       }
-    } catch (error) {
-      console.error('Error sharing post:', error);
+    } catch (err) {
+      console.error('Error sharing post:', err);
     }
   };
 
@@ -78,20 +80,20 @@ const PostCard = ({ post, onUpdate, onDelete, isOwner = false }) => {
       try {
         await postsAPI.deletePost(post.id);
         onDelete(post.id);
-      } catch (error) {
-        console.error('Error deleting post:', error);
+      } catch (err) {
+        console.error('Error deleting post:', err);
       }
     }
   };
 
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-      {/* Post Header */}
+      {/* Header */}
       <div className="flex items-center justify-between p-4">
         <div className="flex items-center space-x-3">
           <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
             <span className="text-white font-bold text-sm">
-              {post.username ? post.username[0].toUpperCase() : 'U'}
+              {post.username?.[0]?.toUpperCase() || 'U'}
             </span>
           </div>
           <div>
@@ -101,7 +103,7 @@ const PostCard = ({ post, onUpdate, onDelete, isOwner = false }) => {
             </p>
           </div>
         </div>
-        
+
         {isOwner && (
           <div className="relative">
             <button
@@ -110,7 +112,6 @@ const PostCard = ({ post, onUpdate, onDelete, isOwner = false }) => {
             >
               <MoreHorizontal className="w-5 h-5 text-gray-500" />
             </button>
-            
             {showMenu && (
               <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border z-10">
                 <button
@@ -139,30 +140,30 @@ const PostCard = ({ post, onUpdate, onDelete, isOwner = false }) => {
         )}
       </div>
 
-      {/* Post Image */}
+      {/* Image */}
       {post.image && (
-        <div className="w-full">
-          <img
-            src={post.image}
-            alt={post.title}
-            className="w-full h-auto object-cover"
-          />
-        </div>
+        <img
+          src={post.image}
+          alt={post.title}
+          className="w-full h-auto object-cover"
+        />
       )}
 
-      {/* Post Content */}
+      {/* Content */}
       <div className="p-4">
         <h2 className="text-xl font-bold text-gray-900 mb-2">{post.title}</h2>
         <p className="text-gray-700 whitespace-pre-wrap">{post.content}</p>
       </div>
 
-      {/* Post Actions */}
+      {/* Footer Actions */}
       <div className="flex items-center justify-between px-4 py-3 border-t border-gray-100">
         <div className="flex items-center space-x-4">
+          {/* Like */}
           <button
             onClick={handleLike}
             disabled={loading}
-            className={`flex items-center space-x-2 px-3 py-1 rounded-lg transition-colors ${
+            title="Like"
+            className={`flex items-center space-x-1 px-3 py-1 rounded-lg transition-colors ${
               isLiked
                 ? 'bg-red-100 text-red-600'
                 : 'hover:bg-gray-100 text-gray-600'
@@ -172,20 +173,25 @@ const PostCard = ({ post, onUpdate, onDelete, isOwner = false }) => {
             <span className="text-sm font-medium">{likes}</span>
           </button>
 
+          {/* Dislike */}
           <button
             onClick={handleDislike}
             disabled={loading}
-            className={`flex items-center space-x-2 px-3 py-1 rounded-lg transition-colors ${
+            title="Dislike"
+            className={`flex items-center space-x-1 px-3 py-1 rounded-lg transition-colors ${
               isDisliked
-                ? 'bg-gray-200 text-gray-800'
+                ? 'bg-gray-300 text-gray-800'
                 : 'hover:bg-gray-100 text-gray-600'
             }`}
           >
+            <ThumbsDown className={`w-5 h-5 ${isDisliked ? 'fill-current' : ''}`} />
             <span className="text-sm font-medium">{dislikes}</span>
           </button>
 
+          {/* Share */}
           <button
             onClick={handleShare}
+            title="Share"
             className="flex items-center space-x-2 px-3 py-1 rounded-lg hover:bg-gray-100 text-gray-600 transition-colors"
           >
             <Share className="w-5 h-5" />
