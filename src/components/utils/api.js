@@ -2,7 +2,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'http://localhost:8090',
+  baseURL: 'https://server-production-19a9.up.railway.app',
 });
 
 api.interceptors.request.use(config => {
